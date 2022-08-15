@@ -1,25 +1,37 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { lazy, Suspense, useState } from 'react';
+import './style.css';
+import CircularProgress from '@mui/material/CircularProgress';
 
-function App() {
+import { Provider } from 'react-redux';
+import { store } from './redux/store';
+import { SearchContext } from './contexts/searchContext';
+
+import Cart from './Cart';
+import Search from './Search';
+import Footer from './Footer';
+
+const Food = lazy(() => import('./Food'));
+
+export default function App() {
+  const [food, setFood] = useState([]);
+  const [searchText, setSearchText] = useState('');
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+      <Provider store={store}>
+        <Cart
+          searchText={searchText}
+          setSearchText={setSearchText}
+          setFood={setFood}
+        />
+        <SearchContext.Provider value={[food, setFood]}>
+          <Search searchText={searchText} setSearchText={setSearchText} />
+          <Suspense fallback={<CircularProgress />}>
+            <Food searchText={searchText} />
+          </Suspense>
+        </SearchContext.Provider>
+      </Provider>
+      <Footer />
+    </>
   );
 }
-
-export default App;
